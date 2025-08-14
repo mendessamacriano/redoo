@@ -2,6 +2,8 @@ import { supabase } from '@/lib/supabase';
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import type { Session } from '@supabase/supabase-js';
+import Constants from 'expo-constants';
+import * as Linking from 'expo-linking';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Alert, AppState, AppStateStatus, FlatList, KeyboardAvoidingView, Modal, Platform, Pressable, SafeAreaView, StatusBar, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import 'react-native-get-random-values';
@@ -426,7 +428,7 @@ function Header({ onProfile, totals }: { onProfile: () => void; totals: ReturnTy
   return (
     <View style={styles.header}>
       <View>
-        <Text style={styles.h1}>Car Delivery Tracker</Text>
+        <Text style={styles.h1}>Redoo</Text>
         {/* <Text style={styles.h2}>Income (incl. expenses): {currency(totals.net)} · Gross {currency(totals.totalEarnings)} + Exp {currency(totals.totalExpenses)} · {totals.totalJobs} jobs</Text> */}
       </View>
       <TouchableOpacity onPress={onProfile} style={styles.avatar}>
@@ -734,29 +736,43 @@ function ProfileModal({ visible, onClose, session }: { visible: boolean; onClose
           <Text style={styles.modalTitle}>Profile</Text>
           <TouchableOpacity onPress={onClose}><Text style={styles.btnGhostText}>Close</Text></TouchableOpacity>
         </View>
-        <View style={{ padding: 16, gap: 12 }}>
-          {!session ? (
-            <>
-              <Text style={{ color: '#94a3b8' }}>Sign in or create an account</Text>
-              <TextInput placeholder="Email" autoCapitalize="none" keyboardType="email-address" value={email} onChangeText={setEmail} style={styles.input} />
-              <TextInput placeholder="Password" secureTextEntry value={password} onChangeText={setPassword} style={styles.input} />
-              <TouchableOpacity disabled={loading} onPress={signIn} style={styles.btnPrimary}><Text style={styles.btnPrimaryText}>{loading ? 'Loading...' : 'Sign In'}</Text></TouchableOpacity>
-              <TouchableOpacity disabled={loading} onPress={signUp} style={[styles.btnGhost]}><Text style={styles.btnGhostText}>Sign Up</Text></TouchableOpacity>
-            </>
-          ) : (
-            <>
-              <Text style={{ color: '#94a3b8' }}>Signed in as {session.user.email}</Text>
-              <TextInput placeholder="Username" value={username} onChangeText={setUsername} style={styles.input} />
-              <TextInput placeholder="Website" value={website} onChangeText={setWebsite} style={styles.input} />
-              <TouchableOpacity disabled={loading} onPress={() => updateProfile({ username, website, avatar_url: avatarUrl })} style={styles.btnPrimary}><Text style={styles.btnPrimaryText}>{loading ? 'Loading ...' : 'Update'}</Text></TouchableOpacity>
-              <TouchableOpacity onPress={signOut} style={[styles.btnGhostDanger]}><Text style={styles.btnGhostDangerText}>Sign Out</Text></TouchableOpacity>
-            </>
-          )}
+
+        <View style={{ padding: 16, gap: 12, flex: 1,}}>
+         
+            {!session ? (
+              <>
+                <Text style={{ color: '#94a3b8' }}>Sign in or create an account</Text>
+                <TextInput placeholder="Email" autoCapitalize="none" keyboardType="email-address" value={email} onChangeText={setEmail} style={styles.input} />
+                <TextInput placeholder="Password" secureTextEntry value={password} onChangeText={setPassword} style={styles.input} />
+                <TouchableOpacity disabled={loading} onPress={signIn} style={styles.btnPrimary}><Text style={styles.btnPrimaryText}>{loading ? 'Loading...' : 'Sign In'}</Text></TouchableOpacity>
+                <TouchableOpacity disabled={loading} onPress={signUp} style={styles.btnGhost}><Text style={styles.btnGhostText}>Sign Up</Text></TouchableOpacity>
+              </>
+            ) : (
+              <>
+                <Text style={{ color: '#94a3b8' }}>Signed in as {session.user.email}</Text>
+                <TextInput placeholder="Username" value={username} onChangeText={setUsername} style={styles.input} />
+                <TextInput placeholder="Website" value={website} onChangeText={setWebsite} style={styles.input} />
+                <TouchableOpacity disabled={loading} onPress={() => updateProfile({ username, website, avatar_url: avatarUrl })} style={styles.btnPrimary}><Text style={styles.btnPrimaryText}>{loading ? 'Loading ...' : 'Update'}</Text></TouchableOpacity>
+                <TouchableOpacity onPress={signOut} style={styles.btnGhostDanger}><Text style={styles.btnGhostDangerText}>Sign Out</Text></TouchableOpacity>
+              </>
+            )}
+
+            {/* Privacy Policy link */}
+            <TouchableOpacity onPress={() => Linking.openURL('https://www.freeprivacypolicy.com/live/ca9ad14a-e9c1-431c-b219-faebbbae4074')} style={{ marginTop: 20 }}>
+              <Text style={{ color: '#3b82f6', textDecorationLine: 'underline' }}>Privacy Policy</Text>
+            </TouchableOpacity>
+         
+
+          {/* App version at the bottom */}
+          <Text style={{ color: '#94a3b8', textAlign: 'center', marginTop: 'auto' }}>
+            Version {Constants.expoConfig?.version || '1.0.0'}
+          </Text>
         </View>
       </SafeAreaView>
     </Modal>
   );
 }
+
 
 function JobDetailsModal({ visible, onClose, delivery, onSetStatus }: { visible: boolean; onClose: () => void; delivery: Delivery | null; onSetStatus: (s: Delivery['status']) => void | Promise<void> }) {
   if (!delivery) return null as any;
